@@ -14,18 +14,15 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
     @FXML
     public Pane player;
-    public Pane mainPane;
+    public AnchorPane mainPane;
     public Label eierenText;
     public Pane henHouse;
-    private static final double W = 700, H= 700;
     private static double movSpeed = 3;
     private int eieren = 0;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("hoi");
         eierenText.setText(String.format("Aantal eieren: %s", eieren));
-        System.out.println(mainPane.getScaleX());
     }
 
     private void placeAnEgg(double x, double y) {
