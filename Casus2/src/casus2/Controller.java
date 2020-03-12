@@ -1,108 +1,115 @@
 package casus2;
 
-
-import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.animation.Animation;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.input.KeyCode;
+import javafx.geometry.Point2D;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.util.Duration;
-
 import java.net.URL;
 import java.util.ResourceBundle;
-
 
 public class Controller implements Initializable {
     @FXML
     public Pane player;
+    public Pane mainPane;
+    public Label eierenText;
+    public Pane henHouse;
     private static final double W = 700, H= 700;
+    private static double movSpeed = 3;
+    private int eieren = 0;
 
-    boolean goForward, goBackward, goLeft, goRight, placeEgg;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         System.out.println("hoi");
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(0.001),
-                        new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent actionEvent) {
-                                // Call update method for every 0.001 sec.
-                                checkInputs();
-                            }
-                        }));
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+        eierenText.setText(String.format("Aantal eieren: %s", eieren));
+        System.out.println(mainPane.getScaleX());
     }
 
-    public void checkInputs(){
-        AnimationTimer timer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                int dx = 0, dy = 0;
-
-                if (goForward) dy -= 1;
-                if (goBackward) dy += 1;
-                if (goLeft)  dx -= 1;
-                if (goRight)  dx += 1;
-                if (placeEgg) placeAnEgg();
-
-                movePlayerBy(dx, dy);
-            }
-        };
-        timer.start();
+    private void placeAnEgg(double x, double y) {
+        if(isInTheHenHouse()){
+            eieren += 1;
+            eierenText.setText(String.format("Aantal eieren: %s", eieren));
+            Ei ei = new Ei(x, y);
+            mainPane.getChildren().add(ei);
+        }
     }
 
-    private void placeAnEgg() {
+    private boolean isInTheHenHouse(){
+        double posX = henHouse.getLayoutX();
+        double posY = henHouse.getLayoutY();
+        double width = henHouse.getPrefWidth();
+        double height = henHouse.getPrefHeight();
+        Point2D hhLeftTop = (new Point2D(posX, posY));
+        Point2D hhRightTop = (new Point2D(posX + width, posY));
+        Point2D hhRightBottom = (new Point2D(posX + width, posY + height));
+        Point2D playerPos = (new Point2D(player.getLayoutX(), player.getLayoutY()));
+
+        if(((playerPos.getX() + 10) >= hhLeftTop.getX()) && (playerPos.getX() <= (hhRightTop.getX() - 30)) &&
+                ((playerPos.getY() + 10) >= hhLeftTop.getY()) && playerPos.getY() <= (hhRightBottom.getY() - 35)){
+            return true;
+        } else {
+            createAlert();
+            return false;
+        }
+    }
+
+    private boolean isOnScreen(){
+        Point2D hhLeftTop = (new Point2D(0, 0));
+        Point2D hhRightTop = (new Point2D(700, 0));
+        Point2D hhRightBottom = (new Point2D(700, 700));
+        Point2D playerPos = (new Point2D(player.getLayoutX(), player.getLayoutY()));
+
+        if((playerPos.getX() >= hhLeftTop.getX()) && (playerPos.getX() <= hhRightTop.getX()) &&
+                (playerPos.getY() >= hhLeftTop.getY()) && (playerPos.getY() <= hhRightBottom.getY())){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @FXML
     public void handleOnKeyPressed(KeyEvent event) {
-
         switch(event.getCode()){
-            case W: goForward = true; break;
-            case S: goBackward = true; break;
-            case A: goLeft = true; break;
-            case D: goRight = true; break;
+            case W: movePlayerTo(0, -movSpeed); break;
+            case S: movePlayerTo(0, movSpeed); break;
+            case A: movePlayerTo(-movSpeed, 0); break;
+            case D: movePlayerTo(movSpeed, 0); break;
+            case SPACE: placeAnEgg(player.getLayoutX(), player.getLayoutY());
         }
     }
 
     @FXML
     public void handleOnKeyReleased(KeyEvent event) {
         switch(event.getCode()){
-            case W: goForward = false; break;
-            case S: goBackward = false; break;
-            case A: goLeft = false; break;
-            case D: goRight = false; break;
+            case W: case S: case A: case D: movePlayerTo(0, 0); break;
         }
     }
 
-    public void movePlayerBy(int dx, int dy){
-        if (dx == 0 && dy == 0) return;
-
-        final double cx = player.getBoundsInLocal().getWidth()  / 2;
-        final double cy = player.getBoundsInLocal().getHeight() / 2;
-
-        double x = cx + player.getLayoutX() + dx;
-        double y = cy + player.getLayoutY() + dy;
-
-        movePlayerTo(x, y);
+    public void createAlert(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("!!!");
+        alert.setHeaderText("Let op");
+        alert.setContentText("Je mag alleen in de hen (het bruine vlak) een ei plaatsen!");
+        alert.showAndWait();
     }
 
-    private void movePlayerTo(double x, double y) {
-        final double cx = player.getBoundsInLocal().getWidth()  / 2;
-        final double cy = player.getBoundsInLocal().getHeight() / 2;
-
-        if (x - cx >= 0 &&
-                x + cx <= W &&
-                y - cy >= 0 &&
-                y + cy <= H) {
-            player.relocate(x - cx, y - cy);
+    public void movePlayerTo(double x, double y){
+        double posX = player.getLayoutX();
+        double posY = player.getLayoutY();
+        if(isOnScreen()){
+            player.relocate(posX + x, posY + y);
+        } else {
+            if(posX <= 0)
+                player.relocate(posX + 1, posY);
+            if(posX >= 700)
+                player.relocate(posX - 1, posY);
+            if(posY <= 0)
+                player.relocate(posX, posY + 1);
+            if(posY >= 700)
+                player.relocate(posX, posY - 1);
         }
     }
 }
