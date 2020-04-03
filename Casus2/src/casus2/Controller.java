@@ -87,7 +87,6 @@ public class Controller implements Initializable {
     }
 
     // Kijk of er een toets ingedrukt wordt
-    @FXML
     public void handleOnKeyPressed(KeyEvent event) {
         // Beweeg de kip in de betreffende richting
         switch(event.getCode()){
@@ -100,7 +99,6 @@ public class Controller implements Initializable {
     }
 
     // Kijk of er een toets losgelaten wordt
-    @FXML
     public void handleOnKeyReleased(KeyEvent event) {
         // Stop de beweging van de kip
         switch(event.getCode()){
@@ -123,6 +121,7 @@ public class Controller implements Initializable {
         double posX = player.getLayoutX();
         // Y positie van de kip
         double posY = player.getLayoutY();
+        System.out.println(posX + "\t" + posY);
 
         // check of de kip op het scherm is
         if(isOnScreen()){

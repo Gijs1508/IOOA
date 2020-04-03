@@ -10,8 +10,8 @@ public class Ei extends AnchorPane {
         ImageView showEi = new ImageView(eiImg);
         showEi.setFitWidth(30);
         showEi.setFitHeight(30);
-        this.setLayoutX(x);
-        this.setLayoutY(y);
-        this.getChildren().add(showEi);
+        setLayoutX(x);
+        setLayoutY(y);
+        getChildren().add(showEi);
     }
 }

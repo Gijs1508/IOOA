@@ -13,7 +13,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("casus2.fxml"));
-        Scene root = new Scene(loader.load(), 700, 750);
+        Scene root = new Scene(loader.load(), 750, 750);
         root.getRoot().requestFocus();
         primaryStage.setTitle("Kip");
         Image image = new Image("/images/kip.png");
